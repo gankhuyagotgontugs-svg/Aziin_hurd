@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Азын хүрд</title>
+
+  <style>
+    :root {
+      --gold: #ffd477;
+      --text: #f5f3ff;
+      --muted: #b5b5cf;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 40px 18px;
+      background:
+        radial-gradient(ellipse at 15% 15%, #7639b52b, transparent 45%),
+        radial-gradient(ellipse at 90% 85%, #2575b52b, transparent 45%),
+        #090b16;
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    main {
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      padding: 36px 28px;
+      border: 1px solid #ffffff17;
+      border-radius: 32px;
+      background: linear-gradient(145deg, #20233a, #111323);
+      box-shadow:
+        0 35px 90px #0007,
+        inset 0 1px 0 #ffffff12;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 20%;
+      right: 20%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        #ffe2a4,
+        transparent
+      );
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 10px 18px;
+      border: 1px solid #ffd47735;
+      border-radius: 100px;
+      background: #ffd4770d;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 3px;
+    }
+
+    h1 {
+      margin: 24px 0 14px;
+      font-size: clamp(27px, 7vw, 38px);
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -1px;
+      text-wrap: balance;
+    }
+
+    h2 {
+      font-size: 25px;
+      line-height: 1.4;
+      text-wrap: balance;
+    }
+
+    p {
+      margin: 14px 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+    }
+
+    .wheel-wrap {
+      position: relative;
+      isolation: isolate;
+      width: min(100%, 320px);
+      margin: 36px auto;
+      padding: 12px;
+      border: 1px solid #ffe5a34d;
+      border-radius: 50%;
+      background: linear-gradient(
+        145deg,
+        #fff0bb,
+        #d79c3c 25%,
+        #765024 50%,
+        #f4ce78 75%,
+        #ffecc0
+      );
+      box-shadow:
+        0 18px 40px #0007,
+        0 0 45px #ffcc6118,
+        inset 0 0 0 4px #17182a;
+    }
+
+    .wheel-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      z-index: 1;
+      border: 5px dotted #fff3c1;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: drop-shadow(0 0 3px #ffd477);
+    }
+
+    .pointer {
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      z-index: 4;
+      width: 34px;
+      height: 43px;
+      transform: translateX(-50%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      background: linear-gradient(
+        90deg,
+        #dc9f3d,
+        #fff0b5,
+        #e9b452
+      );
+      filter: drop-shadow(0 4px 4px #0008);
+    }
+
+    .wheel {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border: 3px solid #382a32;
+      border-radius: 50%;
+      background: conic-gradient(
+        #edba55 0deg 60deg,
+        #7955bd 60deg 120deg,
+        #bc537f 120deg 180deg,
+        #416ab0 180deg 240deg,
+        #348b80 240deg 300deg,
+        #c47748 300deg 360deg
+      );
+      box-shadow: inset 0 0 30px #0004;
+      transition: transform 4.5s cubic-bezier(.12, .75, .12, 1);
+    }
+
+    .wheel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        #ffffff45 0deg 1deg,
+        transparent 1deg 60deg
+      );
+      pointer-events: none;
+    }
+
+    .wheel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 35% 25%,
+        #ffffff25,
+        transparent 55%,
+        #0002
+      );
+      pointer-events: none;
+    }
+
+    .segment {
+      position: absolute;
+      inset: 0;
+      transform: rotate(var(--angle));
+    }
+
+    .segment span {
+      position: absolute;
+      top: 27px;
+      left: 50%;
+      display: grid;
+      place-items: center;
+      width: 49px;
+      height: 49px;
+      transform:
+        translateX(-50%)
+        rotate(calc(-1 * var(--angle)));
+      border: 1px solid #ffffff35;
+      border-radius: 15px;
+      background: #ffffff16;
+      font-size: 30px;
+      filter: drop-shadow(0 3px 3px #0003);
+    }
+
+    .hub {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      width: 70px;
+      height: 70px;
+      transform: translate(-50%, -50%);
+      border: 5px solid #f6d38b;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 35% 25%,
+        #414465,
+        #151727
+      );
+      color: var(--gold);
+      font-size: 31px;
+      box-shadow:
+        0 5px 15px #0006,
+        inset 0 0 0 2px #fff2;
+      text-shadow: 0 0 15px #ffd47766;
+    }
+
+    button {
+      position: relative;
+      width: 100%;
+      min-height: 58px;
+      padding: 18px 20px;
+      overflow: hidden;
+      border: 1px solid #ffe9af;
+      border-radius: 17px;
+      background: linear-gradient(135deg, #ffe3a0, #edb84d);
+      color: #32230e;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .6px;
+      cursor: pointer;
+      box-shadow:
+        0 5px 0 #986b28,
+        0 12px 25px #e5ac3520;
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        filter .2s ease;
+    }
+
+    button::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -80%;
+      width: 45%;
+      height: 200%;
+      transform: skewX(-25deg);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        #ffffff70,
+        transparent
+      );
+      pointer-events: none;
+      animation: shine 5s ease-in-out infinite;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+      box-shadow:
+        0 7px 0 #986b28,
+        0 16px 30px #e5ac3530;
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #986b28;
+    }
+
+    button:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+
+    button:disabled::after {
+      animation: none;
+    }
+
+    button:focus-visible {
+      outline: 3px solid white;
+      outline-offset: 5px;
+    }
+
+    #spinStatus {
+      min-height: 24px;
+      margin: 18px 0 0;
+      color: var(--gold);
+      font-size: 12px;
+    }
+
+    .big-icon {
+      display: grid;
+      place-items: center;
+      width: 150px;
+      height: 130px;
+      margin: 10px auto 26px;
+      border: 1px solid #ffd47735;
+      border-radius: 36px;
+      background: radial-gradient(
+        circle at top,
+        #ffd47725,
+        #ffd47705
+      );
+      font-size: 58px;
+      box-shadow: 0 0 45px #ffd4770d;
+    }
+
+    .highlight {
+      color: var(--gold);
+    }
+
+    #advicePage {
+      position: relative;
+      isolation: isolate;
+      padding-left: 22px;
+    }
+
+    /* Зургийн дээд хэсгийг харуулна. */
+    .fishing-header {
+      position: relative;
+      width: 180px;
+      height: 100px;
+      margin: 0 auto 20px;
+      overflow: hidden;
+    }
+
+    .fishing-header img {
+      display: block;
+      width: 180px;
+      height: auto;
+      max-width: none;
+      margin: 0;
+    }
+
+    /* Урт утас, дэгээ. */
+    .fishing-line {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .fishing-line path {
+      fill: none;
+      stroke: #8fd3d4;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 4px #8fd3d433);
+    }
+
+    #advicePage > .highlight {
+      padding: 16px;
+      border-left: 3px solid var(--gold);
+      border-radius: 0 12px 12px 0;
+      background: #ffd4770a;
+      text-align: left;
+    }
+
+    .tips {
+      margin: 24px 0;
+      padding: 0;
+      list-style: none;
+      text-align: left;
+    }
+
+    .tips li {
+      margin: 12px 0;
+      padding: 19px;
+      border: 1px solid #ffffff0f;
+      border-radius: 17px;
+      background: linear-gradient(
+        135deg,
+        #ffffff08,
+        #ffffff03
+      );
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .tips strong {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--gold);
+      font-size: 14px;
+    }
+
+    /* Дэгээнд өлгөгдсөн мессеж. */
+    .gmail-message {
+      position: relative;
+      margin: 42px 0 34px 12px;
+      border: 1px solid #ffffff;
+      border-radius: 16px;
+      background: #ffffff;
+      color: #263248;
+      text-align: left;
+      box-shadow: 0 16px 35px #0005;
+      transform: rotate(-3deg);
+      transform-origin: 35px 0;
+    }
+
+    .mail-hole {
+      position: absolute;
+      top: 10px;
+      left: 28px;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #c8ccd4;
+      border-radius: 50%;
+      background: #172036;
+      box-shadow: inset 0 1px 3px #0005;
+    }
+
+    .gmail-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 28px 18px 13px;
+      border-bottom: 1px solid #e9edf2;
+    }
+
+    .gmail-logo {
+      display: block;
+      width: 25px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .gmail-header span {
+      color: #626b79;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: .2px;
+    }
+
+    .gmail-message p {
+      margin: 0;
+      padding: 20px 18px 24px;
+      color: #263248;
+      font-size: 15px;
+      line-height: 1.9;
+    }
+
+    .gmail-message strong {
+      font-weight: 700;
+    }
+
+    #resetButton {
+      margin-top: 6px;
+      border: 1px solid #ffffff25;
+      background: #ffffff08;
+      color: #e6e2f3;
+      box-shadow: none;
+      font-size: 12px;
+    }
+
+    #resetButton::after {
+      display: none;
+    }
+
+    #resetButton:hover {
+      background: #ffffff12;
+      box-shadow: none;
+    }
+
+    section:not([hidden]) {
+      animation: appear .45s ease both;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shine {
+      0%, 65% {
+        left: -80%;
+      }
+      100% {
+        left: 150%;
+      }
+    }
+
+    @media (max-width: 380px) {
+      body {
+        padding: 20px 12px;
+      }
+
+      .card {
+        padding: 28px 18px;
+        border-radius: 24px;
+      }
+
+      .segment span {
+        top: 19px;
+        width: 40px;
+        height: 40px;
+        font-size: 25px;
+      }
+
+      .hub {
+        width: 60px;
+        height: 60px;
+      }
+
+      #advicePage {
+        padding-left: 16px;
+      }
+
+      .gmail-message {
+        margin-left: 8px;
+      }
+
+      .gmail-message p {
+        padding: 18px 14px;
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+      }
+
+      .wheel {
+        transition-duration: .1s;
+      }
+
+      button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="card">
+
+      <!-- 1. Хүрд эргүүлэх дэлгэц -->
+      <section id="spinPage">
+        <div class="badge">АЗЫН ХҮРД</div>
+
+        <h1>Азaa үзээрэй! 🎉</h1>
+
+        <p>
+          Хүрдээ эргүүлээд<br>
+          ямар бэлэг таарсныг хараарай.
+        </p>
+
+        <div class="wheel-wrap">
+          <div class="pointer"></div>
+
+          <div class="wheel" id="wheel" aria-hidden="true">
+            <div class="segment" style="--angle: 30deg">
+              <span>📱</span>
+            </div>
+
+            <div class="segment" style="--angle: 90deg">
+              <span>🎧</span>
+            </div>
+
+            <div class="segment" style="--angle: 150deg">
+              <span>🎁</span>
+            </div>
+
+            <div class="segment" style="--angle: 210deg">
+              <span>⌚</span>
+            </div>
+
+            <div class="segment" style="--angle: 270deg">
+              <span>💻</span>
+            </div>
+
+            <div class="segment" style="--angle: 330deg">
+              <span>🎟️</span>
+            </div>
+          </div>
+
+          <div class="hub">★</div>
+        </div>
+
+        <button id="spinButton" type="button">
+          ХҮРД ЭРГҮҮЛЭХ
+        </button>
+
+        <p id="spinStatus" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- 2. Утас хожсон дэлгэц -->
+      <section id="winPage" hidden>
+        <div class="big-icon">📱🎉</div>
+
+        <h1 id="winTitle" tabindex="-1">БАЯР ХҮРГЭЕ!</h1>
+
+        <h2 class="highlight">
+          Та ухаалаг утас хожлоо!
+        </h2>
+
+        <p>
+          Шагналаа авахын тулд<br>
+          доорх товчийг дарна уу.
+        </p>
+
+        <button id="claimButton" type="button">
+          🎁 ШАГНАЛАА АВАХ
+        </button>
+      </section>
+
+      <!-- 3. Зөвлөмжийн дэлгэц -->
+      <section id="advicePage" hidden>
+
+        <svg
+          class="fishing-line"
+          aria-hidden="true"
+          preserveAspectRatio="none"
+        >
+          <path id="fishingPath"></path>
+        </svg>
+
+        <div class="fishing-header">
+          <img
+            src="./phishing.png"
+            alt="Фишингийг дүрсэлсэн зураг"
+            id="fishingImage"
+          >
+        </div>
+
+        <h1 id="adviceTitle" tabindex="-1">
+          Та ухаалаг утас хожлоо!
+        </h1>
+
+        <p>
+          Фишинг (phishing) гэдэг нь итгэлтэй хүн, байгууллагын дүр эсгэж, нууц үг, банкны мэдээлэл, нэг удаагийн баталгаажуулах кодыг хуурч авах цахим халдлагын арга юм. Хуурамч мессеж, имэйл, сошиал хаяг, вебсайтаар дамжуулан үйлддэг.
+        </p>
+
+        <p class="highlight">
+          “Дижитал орчинд нэг л анхааралгүй үйлдэл таны санхүү, мэдээлэл, бүр хувийн оршихуйг ч эрсдэлд оруулж мэднэ<br>
+        </p>
+
+        <ul class="tips">
+          <li>
+            <strong>① Эх сурвалжийг шалга.</strong>
+            Урамшууллын мэдээллийг байгууллагын
+            албан ёсны сувгаар лавла.
+          </li>
+
+          <li>
+            <strong>② Нууц үг, 1 удаагийн кодоо бусдад бүү өг.</strong>
+            Шагнал авах нэрээр банкны нууц үг,
+            нэг удаагийн код нэхвэл бүү оруул.
+          </li>
+
+          <li>
+            <strong>③ Мөнгө шилжүүлэх гэж бүү яар.</strong>
+            “Шагналын татвар”, “шимтгэл” нэхвэл
+            түр зогсож, мэдээллийг нягтал.
+          </li>
+        </ul>
+
+        <div class="gmail-message">
+          <div class="mail-hole" aria-hidden="true"></div>
+
+          <div class="gmail-header">
+            <svg
+              class="gmail-logo"
+              viewBox="0 0 24 18"
+              aria-hidden="true"
+            >
+              <path
+                d="M2 16V3"
+                fill="none"
+                stroke="#4285f4"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+              <path
+                d="M22 16V3"
+                fill="none"
+                stroke="#34a853"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+              <path
+                d="M2 3L12 10L22 3"
+                fill="none"
+                stroke="#ea4335"
+                stroke-width="4"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M22 3V8"
+                fill="none"
+                stroke="#fbbc04"
+                stroke-width="4"
+              />
+            </svg>
+
+            <span>Gmail</span>
+          </div>
+
+          <p>
+            <strong>
+              Энэ удаа зөвлөмж байлаа.<br>
+              Дараагийн удаа залилан ч байж болно.
+            </strong>
+          </p>
+        </div>
+
+        <button id="resetButton" type="button">
+          ДАХИН ҮЗЭХ ↻
+        </button>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    const spinPage = document.getElementById("spinPage");
+    const winPage = document.getElementById("winPage");
+    const advicePage = document.getElementById("advicePage");
+
+    const wheel = document.getElementById("wheel");
+    const spinButton = document.getElementById("spinButton");
+    const spinStatus = document.getElementById("spinStatus");
+    const claimButton = document.getElementById("claimButton");
+    const resetButton = document.getElementById("resetButton");
+
+    const fishingImage = document.getElementById("fishingImage");
+    const fishingPath = document.getElementById("fishingPath");
+    const fishingSvg = document.querySelector(".fishing-line");
+    const fishingHeader = document.querySelector(".fishing-header");
+    const mailHole = document.querySelector(".mail-hole");
+
+    let spinning = false;
+    let resultTimer;
+
+    spinButton.addEventListener("click", function () {
+      if (spinning) return;
+
+      spinning = true;
+      spinButton.disabled = true;
+      spinButton.textContent = "ЭРГЭЖ БАЙНА...";
+      spinStatus.textContent = "Таны бэлгийг тодруулж байна…";
+
+      // Таван бүтэн эргэлтийн дараа утасны хэсэг дээр зогсоно.
+      // Энэ сургалтын жишээнд үр дүн үргэлж утас байна.
+      wheel.style.transform = "rotate(2130deg)";
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      resultTimer = setTimeout(function () {
+        spinPage.hidden = true;
+        winPage.hidden = false;
+
+        document.getElementById("winTitle").focus();
+        window.scrollTo(0, 0);
+      }, reducedMotion ? 250 : 4800);
+    });
+
+    function drawFishingLine() {
+      if (advicePage.hidden) return;
+
+      const pageRect = advicePage.getBoundingClientRect();
+      const headerRect = fishingHeader.getBoundingClientRect();
+      const holeRect = mailHole.getBoundingClientRect();
+
+      if (!pageRect.width || !pageRect.height) return;
+
+      const startX =
+        headerRect.left - pageRect.left +
+        headerRect.width * 0.22;
+
+      const startY =
+        headerRect.top - pageRect.top +
+        headerRect.height - 2;
+
+      const sideX = 5;
+
+      const endX =
+        holeRect.left - pageRect.left +
+        holeRect.width / 2;
+
+      const endY =
+        holeRect.top - pageRect.top +
+        holeRect.height / 2;
+
+      fishingSvg.setAttribute(
+        "viewBox",
+        `0 0 ${pageRect.width} ${pageRect.height}`
+      );
+
+      fishingPath.setAttribute(
+        "d",
+        `
+          M ${startX} ${startY}
+          Q ${startX} ${startY + 15}
+            ${startX - 15} ${startY + 15}
+          L ${sideX + 15} ${startY + 15}
+          Q ${sideX} ${startY + 15}
+            ${sideX} ${startY + 30}
+          L ${sideX} ${endY - 25}
+          C ${sideX} ${endY + 35},
+            ${endX} ${endY + 35},
+            ${endX} ${endY}
+          l -7 9
+        `
+      );
+    }
+
+    claimButton.addEventListener("click", function () {
+      winPage.hidden = true;
+      advicePage.hidden = false;
+
+      document.getElementById("adviceTitle").focus();
+      window.scrollTo(0, 0);
+
+      requestAnimationFrame(drawFishingLine);
+    });
+
+    resetButton.addEventListener("click", function () {
+      clearTimeout(resultTimer);
+
+      advicePage.hidden = true;
+      winPage.hidden = true;
+      spinPage.hidden = false;
+
+      // Хүрдийг буцаахдаа эргэлтийн хөдөлгөөн үзүүлэхгүй.
+      wheel.style.transition = "none";
+      wheel.style.transform = "rotate(0deg)";
+      void wheel.offsetWidth;
+      wheel.style.transition = "";
+
+      spinning = false;
+      spinButton.disabled = false;
+      spinButton.textContent = "ХҮРД ЭРГҮҮЛЭХ";
+      spinStatus.textContent = "";
+
+      spinButton.focus();
+      window.scrollTo(0, 0);
+    });
+
+    window.addEventListener("resize", drawFishingLine);
+
+    fishingImage.addEventListener("load", drawFishingLine);
+
+    advicePage.addEventListener("animationend", function (event) {
+      if (event.target === advicePage) {
+        drawFishingLine();
+      }
+    });
+
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(drawFishingLine);
+      observer.observe(advicePage);
+    }
+  </script>
+</body>
+</html>
